@@ -11,13 +11,16 @@ class CPU:
         self.ram = [0] * 256
         self.reg = [0] * 8
         self.pc = 0
-        self.halted = False
+        self.running = True
+        self.LDI = 0b10000010
+        self.PRN = 0b01000111
+        self.HLT = 0b00000001
 
-    def ram_read():
-        pass
+    def ram_read(self, MAR):
+        return self.ram[MAR]
 
-    def ram_write():
-        pass
+    def ram_write(self, MAR, MDR):
+        self.ram[MAR] = MDR
 
     def load(self):
         """Load a program into memory."""
@@ -71,35 +74,43 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        pass
+        while self.running:
+            ir = self.ram_read(self.pc)
+            operand_a = self.ram_read(self.pc + 1)
+            operand_b = self.ram_read(self.pc + 2)
+            if ir == self.HLT:
+                self.running = False
+                sys.exit(-1)
 
+                # program = [
+                #     # From print8.ls8
+                #     0b10000010,  # LDI R0,8
+                #     0b00000000,
+                #     0b00001000,
+                #     0b01000111,  # PRN R0
+                #     0b00000000,
+                #     0b00000001,  # HLT
+                # ]
 
-# Machine code value of instruction (opcode)
-# 10000010 - LDI or
+                # Implement three instructions:
 
-# Machine opcode arguments (Operands)
-# 00000000 - R0 or
-# 00001000 - 8
+                # LDI: load "immediate", store a value in a register, or "set this register to this value".
+                # PRN: a pseudo - instruction that prints the numeric value stored in a register.
+                # HLT: halt the CPU and exit the emulator.
 
-# Implement three instructions:
+                # Not Implemented
+                # run()
+                # pc
+                # ram
+                # ram_read()
+                # ram_write()
+                # register (reg)
 
-# LDI: load "immediate", store a value in a register, or "set this register to this value".
-# PRN: a pseudo - instruction that prints the numeric value stored in a register.
-# HLT: halt the CPU and exit the emulator.
+                # cpu.py -> Implements the 8bit computer architecture
+                # Implemented
 
-# Not Implemented
-# run()
-# pc
-# ram
-# ram_read()
-# ram_write()
-# register (reg)
+                # ls8.py -> Run with each example file as second argument to run the program created in cpu.py
+                # LS8-spec ->
+                #
 
-# cpu.py -> Implements the 8bit computer architecture
-# Implemented
-
-# ls8.py -> Run with each example file as second argument to run the program created in cpu.py
-# LS8-spec ->
-#
-
-# Start by reading LS8-spec.md
+                # Start by reading LS8-spec.md
