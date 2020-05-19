@@ -12,26 +12,27 @@ class CPU:
         self.reg = [0] * 8
         self.pc = 0
         self.running = True
-        self.LDI = 0b10000010
-        self.PRN = 0b01000111
-        self.HLT = 0b00000001
-        self.arith = {'ADD': 0b10100000,
-                      'SUB': 0b10100001,
-                      'MUL': 0b10100010,
-                      'DIV': 0b10100011,
-                      'INC': 0b01100101,
-                      'DEC': 0b01100110,
-                      'AND': 0b10101000,
-                      'OR': 0b10101010,
-                      'NOT': 0b01101001,
-                      'XOR': 0b10101011,
-                      'SHL': 0b10101100,
-                      'SHR': 0b10101101,
-                      'MOD': 0b10100100,
-                      'CMP': 0b10100111, }
-
-    def __repr__(self):
-        return f""
+        # self.FL = 0 # FL bits: 00000LGE
+        self.instructions = {
+            # Instructions
+            'LDI': 0b10000010,
+            'PRN': 0b01000111,
+            'HLT': 0b00000001,
+            # Arithmetic Operations
+            'ADD': 0b10100000,
+            'SUB': 0b10100001,
+            'MUL': 0b10100010,
+            'DIV': 0b10100011,
+            'INC': 0b01100101,
+            'DEC': 0b01100110,
+            'AND': 0b10101000,
+            'OR': 0b10101010,
+            'NOT': 0b01101001,
+            'XOR': 0b10101011,
+            'SHL': 0b10101100,
+            'SHR': 0b10101101,
+            'MOD': 0b10100100,
+            'CMP': 0b10100111, }
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -76,33 +77,27 @@ class CPU:
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
 
-        if op == self.arith['ADD']:
+        if op == self.instructions['ADD']:
             self.reg[reg_a] += self.reg[reg_b]
-        elif op == self.arith['SUB']:
+        elif op == self.instructions['SUB']:
             self.reg[reg_a] -= self.reg[reg_b]
-        elif op == self.arith['MUL']:
+        elif op == self.instructions['MUL']:
             self.reg[reg_a] *= self.reg[reg_b]
-        elif op == self.arith['DIV']:
+        elif op == self.instructions['DIV']:
             self.reg[reg_a] /= self.reg[reg_b]
-        elif op == self.arith['INC']:
+        elif op == self.instructions['INC']:
             self.reg[reg_a] += 1
-        elif op == self.arith['DEC']:
+        elif op == self.instructions['DEC']:
             self.reg[reg_a] -= 1
-        elif op == self.arith['AND']:
+        elif op == self.instructions['AND']:
             self.reg[reg_a] &= self.reg[reg_b]
-        elif op == self.arith['OR']:
+        elif op == self.instructions['OR']:
             self.reg[reg_a] |= self.reg[reg_b]
-        elif op == self.arith['NOT']:
+        elif op == self.instructions['NOT']:
             return ~self.reg[reg_a]
-        elif op == self.arith['XOR']:
+        elif op == self.instructions['XOR']:
             self.reg[reg_a] ^= self.reg[reg_b]
-        elif op == self.arith['SHL']:
-            new_value = self.reg[reg_a] << self.reg[reg_b]
-            return new_value
-        elif op == self.arith['SHR']:
-            new_value = self.reg[reg_a] >> self.reg[reg_b]
-            return new_value
-        elif op == self.arith['MOD']:
+        elif op == self.instructions['MOD']:
             self.reg[reg_a] %= self.reg[reg_b]
         # elif op == 'CMP':
         #     if self.reg[reg_a] == self.reg[reg_b]:
@@ -145,58 +140,52 @@ class CPU:
     def run(self):
         """Run the CPU."""
         counter = 0
+        verify_alu = 0b00100000
         while self.running:
             ir = self.ram_read(self.pc)
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
             # self.alu(ir, operand_a, operand_b)
-            if ir == self.HLT:
+            if ir == self.instructions['HLT']:
                 self.running = False
                 sys.exit(0)
                 counter = 1
-            elif ir == self.LDI:
+            elif ir == self.instructions['LDI']:
                 self.reg[operand_a] = operand_b
                 counter = 3
-            elif ir == self.PRN:
+            elif ir == self.instructions['PRN']:
                 value = self.reg[operand_a]
                 print(value)
                 counter = 2
-            elif ir == self.arith['MUL']:
+            elif (ir & verify_alu) == verify_alu:
                 self.alu(ir, operand_a, operand_b)
                 counter = 3
             self.pc += counter
 
 
-# Get key and value
-# for key in dictionary
-# if value == dictionary['MUL']
+# Take what you have: the instruction 0b10100000
+# then you mask it against what you want: the alu operation bit -
+# 0b00100000
+# the result: if we have an alu op ? then the result of this masking will be larger than zero, otherwise, if it is zero, it is not an alu operation
+# 1010 0000 - ADD
+# 0010 0000 - VERIFY VALUE
+# ----------
+# 0010 0000
+# 128  64  32  16  8  4  2  1
+# 0     0   1   0  0  0  0  0 - ADD & VERIFY VALUE
 
 
-# def load_dict(dict_items):
-#     count = 0
-#     for k, v in dict_items.items():
-#         if v == dict_items['MUL']:
-#             print('mul', k)
-#             return k
-#         count += 1
+# 1010 1000 - AND
+# 0010 0000 - 0b00100000
+# ---------
+# 0010 0000
 
-
-# arith = {'ADD': 0b10100000,
-#          'SUB': 0b10100001,
-#          'MUL': 0b10100010,
-#          'DIV': 0b10100011,
-#          'INC': 0b01100101,
-#          'DEC': 0b01100110,
-#          'AND': 0b10101000,
-#          'OR': 0b10101010,
-#          'NOT': 0b01101001,
-#          'XOR': 0b10101011,
-#          'SHL': 0b10101100,
-#          'SHR': 0b10101101,
-#          'MOD': 0b10100100,
-#          'CMP': 0b10100111, }
-
-# print(load_dict(arith))
+# If the instruction is ALU it should always return 0b00100000
+# if ir & 0b00100000 == 32:
+# 1010 1000
+# 1010 1000
+# ----------
+# 1010 1000 -
 
 
 # Implement three instructions:
