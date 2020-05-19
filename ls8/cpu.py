@@ -76,48 +76,33 @@ class CPU:
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
 
-        # 'ADD'
-        # 'SUB'
-        # 'MUL'
-        # 'DIV'
-        # 'INC'
-        # 'DEC'
-        # 'AND'
-        # 'OR'
-        # 'NOT'
-        # 'XOR'
-        # 'SHL'
-        # 'SHR'
-        # 'MOD'
-        # 'CMP'
-
-        if op == 'ADD':
+        if op == self.arith['ADD']:
             self.reg[reg_a] += self.reg[reg_b]
-        elif op == 'SUB':
+        elif op == self.arith['SUB']:
             self.reg[reg_a] -= self.reg[reg_b]
-        elif op == 'MUL':
+        elif op == self.arith['MUL']:
             self.reg[reg_a] *= self.reg[reg_b]
-        elif op == 'DIV':
+        elif op == self.arith['DIV']:
             self.reg[reg_a] /= self.reg[reg_b]
-        elif op == 'INC':
+        elif op == self.arith['INC']:
             self.reg[reg_a] += 1
-        elif op == 'DEC':
+        elif op == self.arith['DEC']:
             self.reg[reg_a] -= 1
-        elif op == 'AND':
+        elif op == self.arith['AND']:
             self.reg[reg_a] &= self.reg[reg_b]
-        elif op == 'OR':
+        elif op == self.arith['OR']:
             self.reg[reg_a] |= self.reg[reg_b]
-        elif op == 'NOT':
+        elif op == self.arith['NOT']:
             return ~self.reg[reg_a]
-        elif op == 'XOR':
+        elif op == self.arith['XOR']:
             self.reg[reg_a] ^= self.reg[reg_b]
-        elif op == 'SHL':
+        elif op == self.arith['SHL']:
             new_value = self.reg[reg_a] << self.reg[reg_b]
             return new_value
-        elif op == 'SHR':
+        elif op == self.arith['SHR']:
             new_value = self.reg[reg_a] >> self.reg[reg_b]
             return new_value
-        elif op == 'MOD':
+        elif op == self.arith['MOD']:
             self.reg[reg_a] %= self.reg[reg_b]
         # elif op == 'CMP':
         #     if self.reg[reg_a] == self.reg[reg_b]:
@@ -164,7 +149,7 @@ class CPU:
             ir = self.ram_read(self.pc)
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
-            self.alu(ir, operand_a, operand_b)
+            # self.alu(ir, operand_a, operand_b)
             if ir == self.HLT:
                 self.running = False
                 sys.exit(0)
@@ -176,7 +161,42 @@ class CPU:
                 value = self.reg[operand_a]
                 print(value)
                 counter = 2
+            elif ir == self.arith['MUL']:
+                self.alu(ir, operand_a, operand_b)
+                counter = 3
             self.pc += counter
+
+
+# Get key and value
+# for key in dictionary
+# if value == dictionary['MUL']
+
+
+# def load_dict(dict_items):
+#     count = 0
+#     for k, v in dict_items.items():
+#         if v == dict_items['MUL']:
+#             print('mul', k)
+#             return k
+#         count += 1
+
+
+# arith = {'ADD': 0b10100000,
+#          'SUB': 0b10100001,
+#          'MUL': 0b10100010,
+#          'DIV': 0b10100011,
+#          'INC': 0b01100101,
+#          'DEC': 0b01100110,
+#          'AND': 0b10101000,
+#          'OR': 0b10101010,
+#          'NOT': 0b01101001,
+#          'XOR': 0b10101011,
+#          'SHL': 0b10101100,
+#          'SHR': 0b10101101,
+#          'MOD': 0b10100100,
+#          'CMP': 0b10100111, }
+
+# print(load_dict(arith))
 
 
 # Implement three instructions:
