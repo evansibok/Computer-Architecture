@@ -15,6 +15,20 @@ class CPU:
         self.LDI = 0b10000010
         self.PRN = 0b01000111
         self.HLT = 0b00000001
+        self.arith = {'ADD': 0b10100000,
+                      'SUB': 0b10100001,
+                      'MUL': 0b10100010,
+                      'DIV': 0b10100011,
+                      'INC': 0b01100101,
+                      'DEC': 0b01100110,
+                      'AND': 0b10101000,
+                      'OR': 0b10101010,
+                      'NOT': 0b01101001,
+                      'XOR': 0b10101011,
+                      'SHL': 0b10101100,
+                      'SHR': 0b10101101,
+                      'MOD': 0b10100100,
+                      'CMP': 0b10100111, }
 
     def __repr__(self):
         return f""
@@ -29,18 +43,6 @@ class CPU:
         """Load a program into memory."""
 
         address = 0
-
-        # For now, we've just hardcoded a program:
-
-        # program = [
-        #     # From print8.ls8
-        #     0b10000010,  # LDI R0,8
-        #     0b00000000,
-        #     0b00001000,
-        #     0b01000111,  # PRN R0
-        #     0b00000000,
-        #     0b00000001,  # HLT
-        # ]
 
         try:
             with open(filename) as file:
@@ -68,16 +70,70 @@ class CPU:
                     # Continue iteration
                     address += 1
         except FileNotFoundError:
-            print("file not found!!!")
+            print("File not found!!!")
             sys.exit(2)
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
 
-        if op == "ADD":
+        # 'ADD'
+        # 'SUB'
+        # 'MUL'
+        # 'DIV'
+        # 'INC'
+        # 'DEC'
+        # 'AND'
+        # 'OR'
+        # 'NOT'
+        # 'XOR'
+        # 'SHL'
+        # 'SHR'
+        # 'MOD'
+        # 'CMP'
+
+        if op == 'ADD':
             self.reg[reg_a] += self.reg[reg_b]
-        elif op == = ""
-        # elif op == "SUB": etc
+        elif op == 'SUB':
+            self.reg[reg_a] -= self.reg[reg_b]
+        elif op == 'MUL':
+            self.reg[reg_a] *= self.reg[reg_b]
+        elif op == 'DIV':
+            self.reg[reg_a] /= self.reg[reg_b]
+        elif op == 'INC':
+            self.reg[reg_a] += 1
+        elif op == 'DEC':
+            self.reg[reg_a] -= 1
+        elif op == 'AND':
+            self.reg[reg_a] &= self.reg[reg_b]
+        elif op == 'OR':
+            self.reg[reg_a] |= self.reg[reg_b]
+        elif op == 'NOT':
+            return ~self.reg[reg_a]
+        elif op == 'XOR':
+            self.reg[reg_a] ^= self.reg[reg_b]
+        elif op == 'SHL':
+            new_value = self.reg[reg_a] << self.reg[reg_b]
+            return new_value
+        elif op == 'SHR':
+            new_value = self.reg[reg_a] >> self.reg[reg_b]
+            return new_value
+        elif op == 'MOD':
+            self.reg[reg_a] %= self.reg[reg_b]
+        # elif op == 'CMP':
+        #     if self.reg[reg_a] == self.reg[reg_b]:
+        #         E = 1
+        #     else:
+        #         E = 0
+
+        #     if self.reg[reg_a] < self.reg[reg_b]:
+        #         L = 1
+        #     else:
+        #         L = 0
+
+        #     if self.reg[reg_a] > self.reg[reg_b]:
+        #         G = 1
+        #     else:
+        #         G = 0
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -108,6 +164,7 @@ class CPU:
             ir = self.ram_read(self.pc)
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
+            self.alu(ir, operand_a, operand_b)
             if ir == self.HLT:
                 self.running = False
                 sys.exit(0)
