@@ -74,43 +74,44 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
+        counter = 0
         while self.running:
             ir = self.ram_read(self.pc)
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
             if ir == self.HLT:
                 self.running = False
-                sys.exit(-1)
+                sys.exit(0)
+                counter = 1
+            elif ir == self.LDI:
+                self.reg[operand_a] = operand_b
+                counter = 3
+            elif ir == self.PRN:
+                value = self.reg[operand_a]
+                print(value)
+                counter = 2
+            self.pc += counter
 
-                # program = [
-                #     # From print8.ls8
-                #     0b10000010,  # LDI R0,8
-                #     0b00000000,
-                #     0b00001000,
-                #     0b01000111,  # PRN R0
-                #     0b00000000,
-                #     0b00000001,  # HLT
-                # ]
 
-                # Implement three instructions:
+# Implement three instructions:
 
-                # LDI: load "immediate", store a value in a register, or "set this register to this value".
-                # PRN: a pseudo - instruction that prints the numeric value stored in a register.
-                # HLT: halt the CPU and exit the emulator.
+# LDI: load "immediate", store a value in a register, or "set this register to this value".
+# PRN: a pseudo - instruction that prints the numeric value stored in a register.
+# HLT: halt the CPU and exit the emulator.
 
-                # Not Implemented
-                # run()
-                # pc
-                # ram
-                # ram_read()
-                # ram_write()
-                # register (reg)
+# Not Implemented
+# run()
+# pc
+# ram
+# ram_read()
+# ram_write()
+# register (reg)
 
-                # cpu.py -> Implements the 8bit computer architecture
-                # Implemented
+# cpu.py -> Implements the 8bit computer architecture
+# Implemented
 
-                # ls8.py -> Run with each example file as second argument to run the program created in cpu.py
-                # LS8-spec ->
-                #
+# ls8.py -> Run with each example file as second argument to run the program created in cpu.py
+# LS8-spec ->
+#
 
-                # Start by reading LS8-spec.md
+# Start by reading LS8-spec.md
