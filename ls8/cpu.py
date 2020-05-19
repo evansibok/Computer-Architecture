@@ -16,38 +16,67 @@ class CPU:
         self.PRN = 0b01000111
         self.HLT = 0b00000001
 
+    def __repr__(self):
+        return f""
+
     def ram_read(self, MAR):
         return self.ram[MAR]
 
     def ram_write(self, MAR, MDR):
         self.ram[MAR] = MDR
 
-    def load(self):
+    def load(self, filename):
         """Load a program into memory."""
 
         address = 0
 
         # For now, we've just hardcoded a program:
 
-        program = [
-            # From print8.ls8
-            0b10000010,  # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111,  # PRN R0
-            0b00000000,
-            0b00000001,  # HLT
-        ]
+        # program = [
+        #     # From print8.ls8
+        #     0b10000010,  # LDI R0,8
+        #     0b00000000,
+        #     0b00001000,
+        #     0b01000111,  # PRN R0
+        #     0b00000000,
+        #     0b00000001,  # HLT
+        # ]
 
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
+        try:
+            with open(filename) as file:
+                for line in file:
+                    # remove comments
+                    no_comments = line.split('#')
+
+                    # Grab the numbers and remove whitespaces
+                    numbers = no_comments[0].strip()
+
+                    # If we have an empty line
+                    if numbers == '':
+                        # continue iteration
+                        continue
+
+                    # Convert to integers to make it possible
+                    # to save to register
+                    values = int(numbers, 2)
+
+                    # Using the address as index
+                    # store the result gotten from reading the file
+                    # and save to self.reg[address]
+                    self.ram[address] = values
+
+                    # Continue iteration
+                    address += 1
+        except FileNotFoundError:
+            print("file not found!!!")
+            sys.exit(2)
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
+        elif op == = ""
         # elif op == "SUB": etc
         else:
             raise Exception("Unsupported ALU operation")
