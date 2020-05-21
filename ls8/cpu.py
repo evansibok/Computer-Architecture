@@ -34,9 +34,13 @@ class CPU:
         self.running = True
         # self.FL = 0 # FL bits: 00000LGE
         self.dt = {
+            # System Instruction
             LDI: self.handle_ldi,
             PRN: self.handle_prn,
             HLT: self.handle_hlt,
+
+            # Arithmetic Instruction
+            MUL: self.handle_mul,
         }
 
     def handle_ldi(self, register, value):
@@ -50,6 +54,10 @@ class CPU:
     def handle_hlt(self):
         self.running = False
         sys.exit(-1)
+
+    def handle_mul(self, reg_a, reg_b):
+        self.alu('MUL', reg_a, reg_b)
+        self.pc += 3
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -94,27 +102,27 @@ class CPU:
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
 
-        if op == ADD:
+        if op == 'ADD':
             self.reg[reg_a] += self.reg[reg_b]
-        elif op == SUB:
+        elif op == 'SUB':
             self.reg[reg_a] -= self.reg[reg_b]
-        elif op == MUL:
+        elif op == 'MUL':
             self.reg[reg_a] *= self.reg[reg_b]
-        elif op == DIV:
+        elif op == 'DIV':
             self.reg[reg_a] /= self.reg[reg_b]
-        elif op == INC:
+        elif op == 'INC':
             self.reg[reg_a] += 1
-        elif op == DEC:
+        elif op == 'DEC':
             self.reg[reg_a] -= 1
-        elif op == AND:
+        elif op == 'AND':
             self.reg[reg_a] &= self.reg[reg_b]
-        elif op == OR:
+        elif op == 'OR':
             self.reg[reg_a] |= self.reg[reg_b]
-        elif op == NOT:
+        elif op == 'NOT':
             return ~self.reg[reg_a]
-        elif op == XOR:
+        elif op == 'XOR':
             self.reg[reg_a] ^= self.reg[reg_b]
-        elif op == MOD:
+        elif op == 'MOD':
             self.reg[reg_a] %= self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
