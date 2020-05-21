@@ -41,9 +41,11 @@ class CPU:
 
     def handle_ldi(self, register, value):
         self.reg[register] = value
+        self.pc += 3
 
     def handle_prn(self, register):
         print(self.reg[register])
+        self.pc += 2
 
     def handle_hlt(self):
         self.running = False
@@ -140,23 +142,33 @@ class CPU:
     def run(self):
         """Run the CPU."""
         counter = 0
-        verify_alu = 0b00100000
+        # verify_alu = 0b00100000
         while self.running:
             ir = self.ram_read(self.pc)
-            operand_a = self.ram_read(self.pc + 1)
-            operand_b = self.ram_read(self.pc + 2)
-            if ir == HLT:
-                self.dt[ir]()
-            elif ir == LDI:
-                self.dt[ir](operand_a, operand_b)
-                counter = 3
-            elif ir == PRN:
-                self.dt[ir](operand_a)
-                counter = 2
-            elif (ir & verify_alu) == verify_alu:
-                self.alu(ir, operand_a, operand_b)
-                counter = 3
-            self.pc += counter
+            op_size = ir >> 6
+            op_a = self.ram_read(self.pc + 1)
+            op_b = self.ram_read(self.pc + 2)
+
+            if ir in self.dt:
+                if op_size == 0:
+                    self.dt[ir]()
+                elif op_size == 1:
+                    self.dt[ir](op_a)
+                elif op_size == 2:
+                    self.dt[ir](op_a, op_b)
+            else:
+                print(f"Invalid instruction!")
+                self.running = False
+
+            # if ir == HLT:
+            # elif ir == LDI:
+            #     counter = 3
+            # elif ir == PRN:
+            #     counter = 2
+            # # elif (ir & verify_alu) == verify_alu:
+            # #     self.alu(ir, op_a, op_b)
+            # #     counter = 3
+            # self.pc += counter
 
 
 # Take what you have: the instruction 0b10100000
