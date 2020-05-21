@@ -6,6 +6,8 @@ import sys
 LDI = 0b10000010
 PRN = 0b01000111
 HLT = 0b00000001
+PUSH = 0b01000101
+POP = 0b01000110
 # Arithmetic Operations
 ADD = 0b10100000
 SUB = 0b10100001
@@ -31,6 +33,8 @@ class CPU:
         self.ram = [0] * 256
         self.reg = [0] * 8
         self.pc = 0
+        self.SP = 7
+        self.ram[self.SP] = 0xF4
         self.running = True
         # self.FL = 0 # FL bits: 00000LGE
         self.dt = {
@@ -42,6 +46,8 @@ class CPU:
             SUB: self.handle_sub,
             MUL: self.handle_mul,
             DIV: self.handle_div,
+            PUSH: self.handle_push,
+            POP: self.handle_pop,
             # INC: self.handle_inc,
             # DEC: self.handle_dec,
             AND: self.handle_and,
@@ -141,6 +147,14 @@ class CPU:
 
     def handle_MOD(self, reg_a, reg_b):
         self.reg[reg_a] %= self.reg[reg_b]
+
+    def handle_push(self, register):
+        self.SP -= 1
+        self.ram[self.SP] = self.reg[register]
+
+    def handle_pop(self, register):
+        self.reg[register] = self.ram[self.SP]
+        self.SP += 1
 
     def ram_read(self, MAR):
         return self.ram[MAR]
