@@ -2,6 +2,26 @@
 
 import sys
 
+# Instructions
+LDI = 0b10000010
+PRN = 0b01000111
+HLT = 0b00000001
+# Arithmetic Operations
+ADD = 0b10100000
+SUB = 0b10100001
+MUL = 0b10100010
+DIV = 0b10100011
+INC = 0b01100101
+DEC = 0b01100110
+AND = 0b10101000
+OR = 0b10101010
+NOT = 0b01101001
+XOR = 0b10101011
+SHL = 0b10101100
+SHR = 0b10101101
+MOD = 0b10100100
+CMP = 0b10100111
+
 
 class CPU:
     """Main CPU class."""
@@ -13,26 +33,21 @@ class CPU:
         self.pc = 0
         self.running = True
         # self.FL = 0 # FL bits: 00000LGE
-        self.instructions = {
-            # Instructions
-            'LDI': 0b10000010,
-            'PRN': 0b01000111,
-            'HLT': 0b00000001,
-            # Arithmetic Operations
-            'ADD': 0b10100000,
-            'SUB': 0b10100001,
-            'MUL': 0b10100010,
-            'DIV': 0b10100011,
-            'INC': 0b01100101,
-            'DEC': 0b01100110,
-            'AND': 0b10101000,
-            'OR': 0b10101010,
-            'NOT': 0b01101001,
-            'XOR': 0b10101011,
-            'SHL': 0b10101100,
-            'SHR': 0b10101101,
-            'MOD': 0b10100100,
-            'CMP': 0b10100111, }
+        self.dt = {
+            LDI: self.handle_ldi,
+            PRN: self.handle_prn,
+            HLT: self.handle_hlt,
+        }
+
+    def handle_ldi(self, register, value):
+        self.reg[register] = value
+
+    def handle_prn(self, register):
+        print(self.reg[register])
+
+    def handle_hlt(self):
+        self.running = False
+        sys.exit(-1)
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -77,43 +92,28 @@ class CPU:
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
 
-        if op == self.instructions['ADD']:
+        if op == ADD:
             self.reg[reg_a] += self.reg[reg_b]
-        elif op == self.instructions['SUB']:
+        elif op == SUB:
             self.reg[reg_a] -= self.reg[reg_b]
-        elif op == self.instructions['MUL']:
+        elif op == MUL:
             self.reg[reg_a] *= self.reg[reg_b]
-        elif op == self.instructions['DIV']:
+        elif op == DIV:
             self.reg[reg_a] /= self.reg[reg_b]
-        elif op == self.instructions['INC']:
+        elif op == INC:
             self.reg[reg_a] += 1
-        elif op == self.instructions['DEC']:
+        elif op == DEC:
             self.reg[reg_a] -= 1
-        elif op == self.instructions['AND']:
+        elif op == AND:
             self.reg[reg_a] &= self.reg[reg_b]
-        elif op == self.instructions['OR']:
+        elif op == OR:
             self.reg[reg_a] |= self.reg[reg_b]
-        elif op == self.instructions['NOT']:
+        elif op == NOT:
             return ~self.reg[reg_a]
-        elif op == self.instructions['XOR']:
+        elif op == XOR:
             self.reg[reg_a] ^= self.reg[reg_b]
-        elif op == self.instructions['MOD']:
+        elif op == MOD:
             self.reg[reg_a] %= self.reg[reg_b]
-        # elif op == 'CMP':
-        #     if self.reg[reg_a] == self.reg[reg_b]:
-        #         E = 1
-        #     else:
-        #         E = 0
-
-        #     if self.reg[reg_a] < self.reg[reg_b]:
-        #         L = 1
-        #     else:
-        #         L = 0
-
-        #     if self.reg[reg_a] > self.reg[reg_b]:
-        #         G = 1
-        #     else:
-        #         G = 0
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -145,17 +145,13 @@ class CPU:
             ir = self.ram_read(self.pc)
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
-            # self.alu(ir, operand_a, operand_b)
-            if ir == self.instructions['HLT']:
-                self.running = False
-                sys.exit(0)
-                counter = 1
-            elif ir == self.instructions['LDI']:
-                self.reg[operand_a] = operand_b
+            if ir == HLT:
+                self.dt[ir]()
+            elif ir == LDI:
+                self.dt[ir](operand_a, operand_b)
                 counter = 3
-            elif ir == self.instructions['PRN']:
-                value = self.reg[operand_a]
-                print(value)
+            elif ir == PRN:
+                self.dt[ir](operand_a)
                 counter = 2
             elif (ir & verify_alu) == verify_alu:
                 self.alu(ir, operand_a, operand_b)
