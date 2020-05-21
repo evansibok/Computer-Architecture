@@ -40,24 +40,25 @@ class CPU:
             HLT: self.handle_hlt,
 
             # Arithmetic Instruction
+            ADD: self.handle_add,
             MUL: self.handle_mul,
         }
 
     def handle_ldi(self, register, value):
         self.reg[register] = value
-        self.pc += 3
 
     def handle_prn(self, register):
         print(self.reg[register])
-        self.pc += 2
 
     def handle_hlt(self):
         self.running = False
         sys.exit(-1)
 
+    def handle_add(self, reg_a, reg_b):
+        self.alu('ADD', reg_a, reg_b)
+
     def handle_mul(self, reg_a, reg_b):
         self.alu('MUL', reg_a, reg_b)
-        self.pc += 3
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -149,11 +150,12 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        # counter = 0
-        # verify_alu = 0b00100000
         while self.running:
             ir = self.ram_read(self.pc)
             op_size = ir >> 6
+            # Anding ir with 0b00100000 will always return 0b00100000 and shifting right with 6 will always return 0... So bad choice
+            # op_size1 = (ir & 0b00100000) >> 6
+            # print('op_s1', f"{op_size1:08b}")
             op_a = self.ram_read(self.pc + 1)
             op_b = self.ram_read(self.pc + 2)
 
@@ -162,16 +164,13 @@ class CPU:
                     self.dt[ir]()
                 elif op_size == 1:
                     self.dt[ir](op_a)
+                    self.pc += 2
                 elif op_size == 2:
                     self.dt[ir](op_a, op_b)
+                    self.pc += 3
             else:
                 print(f"Instruction: {ir:b} not found!")
                 self.running = False
-
-            # elif (ir & verify_alu) == verify_alu:
-            #     self.alu(ir, op_a, op_b)
-            #     counter = 3
-            # self.pc += counter
 
 
 # Take what you have: the instruction 0b10100000
