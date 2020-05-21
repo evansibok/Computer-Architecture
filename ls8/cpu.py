@@ -41,28 +41,32 @@ class CPU:
             ADD: self.handle_add,
             SUB: self.handle_sub,
             MUL: self.handle_mul,
-            # DIV: self.handle_div,
+            DIV: self.handle_div,
             # INC: self.handle_inc,
             # DEC: self.handle_dec,
-            # AND: self.handle_and,
-            # OR: self.handle_or,
+            AND: self.handle_and,
+            OR: self.handle_or,
             # NOT: self.handle_not,
-            # XOR: self.handle_xor,
-            # MOD: self.handle_mod,
+            XOR: self.handle_xor,
+            MOD: self.handle_mod,
 
             # Arith Logic
             'ADD': self.handle_ADD,
             'SUB': self.handle_SUB,
             'MUL': self.handle_MUL,
-            # 'DIV': self.handle_DIV,
+            'DIV': self.handle_DIV,
             # 'INC': self.handle_INC,
             # 'DEC': self.handle_DEC,
-            # 'AND': self.handle_AND,
-            # 'OR': self.handle_OR,
+            'AND': self.handle_AND,
+            'OR': self.handle_OR,
             # 'NOT': self.handle_NOT,
-            # 'XOR': self.handle_XOR,
-            # 'MOD': self.handle_MOD,
+            'XOR': self.handle_XOR,
+            'MOD': self.handle_MOD,
         }
+
+    # RETURNS ERROR FOR HANDLERS WITH ONE OPERAND
+    # CREATED A HELPER FUNCTION IN SELF.ALU()
+    # HAVE CLAUSE IS RUN() THAT CHECKS NUMBER OF OPERANDS
 
     def handle_ldi(self, register, value):
         self.reg[register] = value
@@ -83,34 +87,33 @@ class CPU:
     def handle_mul(self, reg_a, reg_b):
         self.alu('MUL', reg_a, reg_b)
 
-    # def handle_div(self, reg_a, reg_b):
-    #     self.alu('DIV', reg_a, reg_b)
+    def handle_div(self, reg_a, reg_b):
+        self.alu('DIV', reg_a, reg_b)
 
-    def handle_inc(self, reg_a):
-        # reg_b = self.ram_read(self.pc + 1)
-        self.alu('INC', reg_a, self.reg[self.pc + 1])
+    # def handle_inc(self, reg_a):
+    #     self.alu('INC', reg_a, reg_b)
 
-    # def handle_dec(self, reg_a, reg_b):
+    # def handle_dec(self, reg_a):
     #     self.alu('DEC', reg_a, reg_b)
 
-    # def handle_and(self, reg_a, reg_b):
-    #     self.alu('AND', reg_a, reg_b)
+    def handle_and(self, reg_a, reg_b):
+        self.alu('AND', reg_a, reg_b)
 
-    # def handle_or(self, reg_a, reg_b):
-    #     self.alu('OR', reg_a, reg_b)
+    def handle_or(self, reg_a, reg_b):
+        self.alu('OR', reg_a, reg_b)
 
     # def handle_not(self, reg_a, reg_b):
     #     self.alu('NOT', reg_a, reg_b)
 
-    # def handle_xor(self, reg_a, reg_b):
-    #     self.alu('XOR', reg_a, reg_b)
+    def handle_xor(self, reg_a, reg_b):
+        self.alu('XOR', reg_a, reg_b)
 
-    # def handle_mod(self, reg_a, reg_b):
-    #     self.alu('MOD', reg_a, reg_b)
+    def handle_mod(self, reg_a, reg_b):
+        self.alu('MOD', reg_a, reg_b)
 
-    def handle_INC(self, reg_a):
-        # self.reg[reg_a] += 1
-        pass
+    # def handle_INC(self, reg_a):
+    #     # self.reg[reg_a] += 1
+    #     pass
 
     def handle_ADD(self, reg_a, reg_b):
         self.reg[reg_a] += self.reg[reg_b]
@@ -120,6 +123,24 @@ class CPU:
 
     def handle_MUL(self, reg_a, reg_b):
         self.reg[reg_a] *= self.reg[reg_b]
+
+    def handle_DIV(self, reg_a, reg_b):
+        self.reg[reg_a] /= self.reg[reg_b]
+
+    def handle_AND(self, reg_a, reg_b):
+        self.reg[reg_a] &= self.reg[reg_b]
+
+    def handle_OR(self, reg_a, reg_b):
+        self.reg[reg_a] |= self.reg[reg_b]
+
+    # def handle_NOT(self, reg_a, reg_b):
+    #     return ~self.reg[reg_a]
+
+    def handle_XOR(self, reg_a, reg_b):
+        self.reg[reg_a] ^= self.reg[reg_b]
+
+    def handle_MOD(self, reg_a, reg_b):
+        self.reg[reg_a] %= self.reg[reg_b]
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -166,28 +187,6 @@ class CPU:
         try:
             handle_func = self.dt[op]
             handle_func(reg_a, reg_b)
-        # if op == 'ADD':
-        #     self.reg[reg_a] += self.reg[reg_b]
-        # elif op == 'SUB':
-        #     self.reg[reg_a] -= self.reg[reg_b]
-        # elif op == 'MUL':
-        #     self.reg[reg_a] *= self.reg[reg_b]
-        # elif op == 'DIV':
-        #     self.reg[reg_a] /= self.reg[reg_b]
-        # elif op == 'INC':
-        #     self.reg[reg_a] += 1
-        # elif op == 'DEC':
-        #     self.reg[reg_a] -= 1
-        # elif op == 'AND':
-        #     self.reg[reg_a] &= self.reg[reg_b]
-        # elif op == 'OR':
-        #     self.reg[reg_a] |= self.reg[reg_b]
-        # elif op == 'NOT':
-        #     return ~self.reg[reg_a]
-        # elif op == 'XOR':
-        #     self.reg[reg_a] ^= self.reg[reg_b]
-        # elif op == 'MOD':
-        #     self.reg[reg_a] %= self.reg[reg_b]
         except:
             raise Exception("Unsupported ALU operation")
 
