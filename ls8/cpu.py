@@ -141,7 +141,7 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        counter = 0
+        # counter = 0
         # verify_alu = 0b00100000
         while self.running:
             ir = self.ram_read(self.pc)
@@ -157,17 +157,12 @@ class CPU:
                 elif op_size == 2:
                     self.dt[ir](op_a, op_b)
             else:
-                print(f"Invalid instruction!")
+                print(f"Instruction: {ir:b} not found!")
                 self.running = False
 
-            # if ir == HLT:
-            # elif ir == LDI:
+            # elif (ir & verify_alu) == verify_alu:
+            #     self.alu(ir, op_a, op_b)
             #     counter = 3
-            # elif ir == PRN:
-            #     counter = 2
-            # # elif (ir & verify_alu) == verify_alu:
-            # #     self.alu(ir, op_a, op_b)
-            # #     counter = 3
             # self.pc += counter
 
 
