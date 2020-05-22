@@ -9,6 +9,7 @@ HLT = 0b00000001
 PUSH = 0b01000101
 POP = 0b01000110
 CALL = 0b01010000
+RET = 0b00010001
 # Arithmetic Operations
 ADD = 0b10100000
 SUB = 0b10100001
@@ -50,6 +51,7 @@ class CPU:
             PUSH: self.handle_push,
             POP: self.handle_pop,
             CALL: self.handle_call,
+            RET: self.handle_ret,
             # INC: self.handle_inc,
             # DEC: self.handle_dec,
             AND: self.handle_and,
@@ -171,7 +173,27 @@ class CPU:
         self.pc += 2
 
     def handle_call(self, register):
-        pass
+        """
+        Handles a subroutine CALL.
+        Push the address of the instruction directly after the CALL to the stack. This allows us to return to where we left off when the subroutine finiseses executing.
+        """
+        self.SP -= 1
+        self.ram[self.SP] = self.pc + 2
+        # The code below also works after
+        # the SP has been decremented by 1
+        # self.ram_write(self.SP, self.pc + 2)
+
+        # Set the pc to the address stored in the given register
+        self.pc = self.reg[register]
+
+    def handle_ret(self):
+        """
+        Read from RAM, pop the value from the top (the current SP) of the stack and store in the program counter
+        """
+        self.pc = self.ram[self.SP]
+        # The code below also works to read from ram
+        # self.pc = self.ram_read(self.SP)
+        self.SP += 1
 
     def ram_read(self, MAR):
         return self.ram[MAR]
