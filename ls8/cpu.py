@@ -8,6 +8,7 @@ PRN = 0b01000111
 HLT = 0b00000001
 PUSH = 0b01000101
 POP = 0b01000110
+CALL = 0b01010000
 # Arithmetic Operations
 ADD = 0b10100000
 SUB = 0b10100001
@@ -48,6 +49,7 @@ class CPU:
             DIV: self.handle_div,
             PUSH: self.handle_push,
             POP: self.handle_pop,
+            CALL: self.handle_call,
             # INC: self.handle_inc,
             # DEC: self.handle_dec,
             AND: self.handle_and,
@@ -76,9 +78,11 @@ class CPU:
 
     def handle_ldi(self, register, value):
         self.reg[register] = value
+        self.pc += 3
 
     def handle_prn(self, register):
         print(self.reg[register])
+        self.pc += 2
 
     def handle_hlt(self):
         self.running = False
@@ -123,38 +127,51 @@ class CPU:
 
     def handle_ADD(self, reg_a, reg_b):
         self.reg[reg_a] += self.reg[reg_b]
+        self.pc += 3
 
     def handle_SUB(self, reg_a, reg_b):
         self.reg[reg_a] -= self.reg[reg_b]
+        self.pc += 3
 
     def handle_MUL(self, reg_a, reg_b):
         self.reg[reg_a] *= self.reg[reg_b]
+        self.pc += 3
 
     def handle_DIV(self, reg_a, reg_b):
         self.reg[reg_a] /= self.reg[reg_b]
+        self.pc += 3
 
     def handle_AND(self, reg_a, reg_b):
         self.reg[reg_a] &= self.reg[reg_b]
+        self.pc += 3
 
     def handle_OR(self, reg_a, reg_b):
         self.reg[reg_a] |= self.reg[reg_b]
+        self.pc += 3
 
     # def handle_NOT(self, reg_a, reg_b):
     #     return ~self.reg[reg_a]
 
     def handle_XOR(self, reg_a, reg_b):
         self.reg[reg_a] ^= self.reg[reg_b]
+        self.pc += 3
 
     def handle_MOD(self, reg_a, reg_b):
         self.reg[reg_a] %= self.reg[reg_b]
+        self.pc += 3
 
     def handle_push(self, register):
         self.SP -= 1
         self.ram[self.SP] = self.reg[register]
+        self.pc += 2
 
     def handle_pop(self, register):
         self.reg[register] = self.ram[self.SP]
         self.SP += 1
+        self.pc += 2
+
+    def handle_call(self, register):
+        pass
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -240,10 +257,8 @@ class CPU:
                     self.dt[ir]()
                 elif op_size == 1:
                     self.dt[ir](op_a)
-                    self.pc += 2
                 elif op_size == 2:
                     self.dt[ir](op_a, op_b)
-                    self.pc += 3
             else:
                 print(f"Instruction: {ir:b} not found!")
                 self.running = False
