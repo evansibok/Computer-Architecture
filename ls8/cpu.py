@@ -56,7 +56,7 @@ class CPU:
             # DEC: self.handle_dec,
             AND: self.handle_and,
             OR: self.handle_or,
-            # NOT: self.handle_not,
+            NOT: self.handle_not,
             XOR: self.handle_xor,
             MOD: self.handle_mod,
 
@@ -69,7 +69,7 @@ class CPU:
             # 'DEC': self.handle_DEC,
             'AND': self.handle_AND,
             'OR': self.handle_OR,
-            # 'NOT': self.handle_NOT,
+            'NOT': self.handle_NOT,
             'XOR': self.handle_XOR,
             'MOD': self.handle_MOD,
         }
@@ -82,11 +82,11 @@ class CPU:
         self.reg[register] = value
         self.pc += 3
 
-    def handle_prn(self, register):
+    def handle_prn(self, register, some2):
         print(self.reg[register])
         self.pc += 2
 
-    def handle_hlt(self):
+    def handle_hlt(self, some1, some2):
         self.running = False
         sys.exit(-1)
 
@@ -114,8 +114,8 @@ class CPU:
     def handle_or(self, reg_a, reg_b):
         self.alu('OR', reg_a, reg_b)
 
-    # def handle_not(self, reg_a, reg_b):
-    #     self.alu('NOT', reg_a, reg_b)
+    def handle_not(self, reg_a, reg_b):
+        self.alu('NOT', reg_a, reg_b)
 
     def handle_xor(self, reg_a, reg_b):
         self.alu('XOR', reg_a, reg_b)
@@ -151,8 +151,9 @@ class CPU:
         self.reg[reg_a] |= self.reg[reg_b]
         self.pc += 3
 
-    # def handle_NOT(self, reg_a, reg_b):
-    #     return ~self.reg[reg_a]
+    def handle_NOT(self, reg_a, reg_b):
+        self.reg[reg_a] = ~self.reg[reg_a]
+        self.pc += 2
 
     def handle_XOR(self, reg_a, reg_b):
         self.reg[reg_a] ^= self.reg[reg_b]
@@ -162,17 +163,17 @@ class CPU:
         self.reg[reg_a] %= self.reg[reg_b]
         self.pc += 3
 
-    def handle_push(self, register):
+    def handle_push(self, register, some2):
         self.SP -= 1
         self.ram[self.SP] = self.reg[register]
         self.pc += 2
 
-    def handle_pop(self, register):
+    def handle_pop(self, register, some2):
         self.reg[register] = self.ram[self.SP]
         self.SP += 1
         self.pc += 2
 
-    def handle_call(self, register):
+    def handle_call(self, register, some2):
         """
         Handles a subroutine CALL.
         Push the address of the instruction directly after the CALL to the stack. This allows us to return to where we left off when the subroutine finiseses executing.
@@ -186,7 +187,7 @@ class CPU:
         # Set the pc to the address stored in the given register
         self.pc = self.reg[register]
 
-    def handle_ret(self):
+    def handle_ret(self, some1, some2):
         """
         Read from RAM, pop the value from the top (the current SP) of the stack and store in the program counter
         """
@@ -275,12 +276,12 @@ class CPU:
             op_b = self.ram_read(self.pc + 2)
 
             if ir in self.dt:
-                if op_size == 0:
-                    self.dt[ir]()
-                elif op_size == 1:
-                    self.dt[ir](op_a)
-                elif op_size == 2:
-                    self.dt[ir](op_a, op_b)
+                # if op_size == 0:
+                #     self.dt[ir]()
+                # elif op_size == 1:
+                #     self.dt[ir](op_a)
+                # elif op_size == 2:
+                self.dt[ir](op_a, op_b)
             else:
                 print(f"Instruction: {ir:b} not found!")
                 self.running = False
