@@ -40,43 +40,41 @@ class CPU:
         self.running = True
         # self.FL = 0 # FL bits: 00000LGE
         self.dt = {
-            # System Instruction
+            # System Instructions
             LDI: self.handle_ldi,
             PRN: self.handle_prn,
             HLT: self.handle_hlt,
-            ADD: self.handle_add,
-            SUB: self.handle_sub,
-            MUL: self.handle_mul,
-            DIV: self.handle_div,
             PUSH: self.handle_push,
             POP: self.handle_pop,
             CALL: self.handle_call,
             RET: self.handle_ret,
-            # INC: self.handle_inc,
-            # DEC: self.handle_dec,
+
+            # Arith Instructions
+            ADD: self.handle_add,
+            SUB: self.handle_sub,
+            MUL: self.handle_mul,
+            DIV: self.handle_div,
             AND: self.handle_and,
             OR: self.handle_or,
             NOT: self.handle_not,
             XOR: self.handle_xor,
             MOD: self.handle_mod,
+            SHL: self.handle_shl,
+            SHR: self.handle_shr,
 
             # Arith Logic
             'ADD': self.handle_ADD,
             'SUB': self.handle_SUB,
             'MUL': self.handle_MUL,
             'DIV': self.handle_DIV,
-            # 'INC': self.handle_INC,
-            # 'DEC': self.handle_DEC,
             'AND': self.handle_AND,
             'OR': self.handle_OR,
             'NOT': self.handle_NOT,
             'XOR': self.handle_XOR,
             'MOD': self.handle_MOD,
+            'SHL': self.handle_SHL,
+            'SHR': self.handle_SHR,
         }
-
-    # RETURNS ERROR FOR ALU HANDLERS WITH ONE OPERAND
-    # CREATED A HELPER FUNCTION IN SELF.ALU()
-    # HAVE CLAUSE IS RUN() THAT CHECKS NUMBER OF OPERANDS
 
     def handle_ldi(self, register, value):
         self.reg[register] = value
@@ -90,6 +88,8 @@ class CPU:
         self.running = False
         sys.exit(-1)
 
+    # Perform AND on ALU instructions to keep values between 0-255
+
     def handle_add(self, reg_a, reg_b):
         self.alu('ADD', reg_a, reg_b)
 
@@ -101,12 +101,6 @@ class CPU:
 
     def handle_div(self, reg_a, reg_b):
         self.alu('DIV', reg_a, reg_b)
-
-    # def handle_inc(self, reg_a):
-    #     self.alu('INC', reg_a, reg_b)
-
-    # def handle_dec(self, reg_a):
-    #     self.alu('DEC', reg_a, reg_b)
 
     def handle_and(self, reg_a, reg_b):
         self.alu('AND', reg_a, reg_b)
@@ -123,32 +117,34 @@ class CPU:
     def handle_mod(self, reg_a, reg_b):
         self.alu('MOD', reg_a, reg_b)
 
-    # def handle_INC(self, reg_a):
-    #     # self.reg[reg_a] += 1
-    #     pass
+    def handle_shl(self, reg_a, reg_b):
+        self.alu('SHL', reg_a, reg_b)
+
+    def handle_shr(self, reg_a, reg_b):
+        self.alu('SHR', reg_a, reg_b)
 
     def handle_ADD(self, reg_a, reg_b):
-        self.reg[reg_a] += self.reg[reg_b]
+        self.reg[reg_a] = (self.reg[reg_a] + self.reg[reg_b]) & 0xFF
         self.pc += 3
 
     def handle_SUB(self, reg_a, reg_b):
-        self.reg[reg_a] -= self.reg[reg_b]
+        self.reg[reg_a] = (self.reg[reg_a] - self.reg[reg_b]) & 0xFF
         self.pc += 3
 
     def handle_MUL(self, reg_a, reg_b):
-        self.reg[reg_a] *= self.reg[reg_b]
+        self.reg[reg_a] = (self.reg[reg_a] * self.reg[reg_b]) & 0xFF
         self.pc += 3
 
     def handle_DIV(self, reg_a, reg_b):
-        self.reg[reg_a] /= self.reg[reg_b]
+        self.reg[reg_a] = (self.reg[reg_a] / self.reg[reg_b]) & 0xFF
         self.pc += 3
 
     def handle_AND(self, reg_a, reg_b):
-        self.reg[reg_a] &= self.reg[reg_b]
+        self.reg[reg_a] = (self.reg[reg_a] & self.reg[reg_b]) & 0xFF
         self.pc += 3
 
     def handle_OR(self, reg_a, reg_b):
-        self.reg[reg_a] |= self.reg[reg_b]
+        self.reg[reg_a] = (self.reg[reg_a] | self.reg[reg_b]) & 0xFF
         self.pc += 3
 
     def handle_NOT(self, reg_a, reg_b):
@@ -156,11 +152,19 @@ class CPU:
         self.pc += 2
 
     def handle_XOR(self, reg_a, reg_b):
-        self.reg[reg_a] ^= self.reg[reg_b]
+        self.reg[reg_a] = (self.reg[reg_a] ^ self.reg[reg_b]) & 0xFF
         self.pc += 3
 
     def handle_MOD(self, reg_a, reg_b):
         self.reg[reg_a] %= self.reg[reg_b]
+        self.pc += 3
+
+    def handle_SHL(self, reg_a, reg_b):
+        self.reg[reg_a] = (self.reg[reg_a] << self.reg[reg_b]) & 0xFF
+        self.pc += 3
+
+    def handle_SHR(self, reg_a, reg_b):
+        self.reg[reg_a] = (self.reg[reg_a] >> self.reg[reg_b]) & 0xFF
         self.pc += 3
 
     def handle_push(self, register, some2):
@@ -268,7 +272,7 @@ class CPU:
         """Run the CPU."""
         while self.running:
             ir = self.ram_read(self.pc)
-            op_size = ir >> 6
+            # op_size = ir >> 6
             # Anding ir with 0b00100000 will always return 0b00100000 and shifting right with 6 will always return 0... So bad choice
             # op_size1 = (ir & 0b00100000) >> 6
             # print('op_s1', f"{op_size1:08b}")
